@@ -1,5 +1,9 @@
-# Import Libraries
-import json, math
+from flask import Flask, jsonify
+import json
+
+app = Flask(__name__)
+
+# Your existing code...
 
 def movesetOptimization(monstersNumArray):
     monsters = monstersNumArray['monstersArray']
@@ -13,7 +17,7 @@ def movesetOptimization(monstersNumArray):
         if monsters[i] < monsters[i + 1]:  # Compare current and next element
             if i == 0 or moves[i - 1] == 0: # Two 1's cannot be placed next to each other
                 moves[i] = 1
-                efficiency = efficiency - monsters[i]
+                efficiency -= monsters[i]
 
     # Figure out when to Attack (2)
     i = 0
@@ -36,15 +40,12 @@ def movesetOptimization(monstersNumArray):
             # Mark best spot for Attack
             if tempIdxMostEfficiency != -1 and moves[tempIdxMostEfficiency] != 2:
                 moves[tempIdxMostEfficiency] = 2
-                efficiency = efficiency + monsters[tempIdxMostEfficiency]
+                efficiency += monsters[tempIdxMostEfficiency]
 
             # Move i to the next PTC or end
             i = j
         else:
             i += 1
-
-    #print(moves)
-    #print(efficiency)
 
     return efficiency
 
@@ -61,7 +62,6 @@ def evaluate():
     for monsterInput in data:
         # Extract number of monsters
         numOfMonsters = data[counter]['monsters']
-        #sprint(counter, numOfMonsters)
 
         # Add into monsters dictionary
         monsters[counter] = {
@@ -82,12 +82,13 @@ def evaluate():
 
     # Format Efficiency Output
     outputEfficiency = [{"efficiency": value} for value in efficiency.values()]
+    return outputEfficiency
 
-    # Print output.json File
-    with open('output.json', 'w') as output_file:
-        json.dump(outputEfficiency, output_file, indent=4)
-
-    return efficiency
+@app.route('/evaluate', methods=['POST'])
+def evaluate_endpoint():
+    output = evaluate()
+    return jsonify(output)
 
 if __name__ == "__main__":
-    evaluate()
+    app.run(debug=True)
+
