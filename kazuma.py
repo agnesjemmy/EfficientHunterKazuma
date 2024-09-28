@@ -3,8 +3,6 @@ import json
 
 app = Flask(__name__)
 
-# Your existing code...
-
 def movesetOptimization(monstersNumArray):
     monsters = monstersNumArray['monstersArray']
     efficiency = 0
@@ -84,7 +82,7 @@ def evaluate():
     outputEfficiency = [{"efficiency": value} for value in efficiency.values()]
     return outputEfficiency
 
-@app.route('/evaluate', methods=['POST'])
+@app.route('/efficient-hunter-kazuma', methods=['POST'])
 def evaluate_endpoint():
     output = evaluate()
     return jsonify(output)
