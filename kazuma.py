@@ -1,4 +1,4 @@
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
 
 app = Flask(__name__)
@@ -47,46 +47,21 @@ def movesetOptimization(monstersNumArray):
 
     return efficiency
 
-
-def evaluate():
-    # Load 'input.json' File
-    with open('input.json', 'r') as file:
-        data = json.load(file)
-
-    # Read in Monster data
-    monsters = {}  # Initialize empty dictionary
-    counter = 0
-    
-    for monsterInput in data:
-        # Extract number of monsters
-        numOfMonsters = data[counter]['monsters']
-
-        # Add into monsters dictionary
-        monsters[counter] = {
-            'monstersArray': numOfMonsters
-        }
-
-        # increment counter
-        counter += 1 
-
-    # Combine efficiencies into one dictionary    
-    efficiency = {} # Initialize empty dictionary
-    eCounter = 0
-
-    for row in monsters:
-        optimalMoves = movesetOptimization(monsters[row])
-        efficiency[eCounter] = optimalMoves
-        eCounter += 1
-
-    # Format Efficiency Output
-    outputEfficiency = [{"efficiency": value} for value in efficiency.values()]
-    return outputEfficiency
-
 @app.route('/efficient-hunter-kazuma', methods=['POST'])
 def evaluate_endpoint():
-    output = evaluate()
-    return jsonify(output)
+    # Get JSON data from the request
+    data = request.get_json()
+
+    efficiency = []  # Initialize empty list for efficiencies
+
+    for monsters in data:
+        # Create a dictionary to pass to the optimization function
+        monsters_data = {'monstersArray': monsters['monsters']}
+        optimalMoves = movesetOptimization(monsters_data)
+        efficiency.append({"efficiency": optimalMoves})
+
+    print(efficiency)
+    return jsonify(efficiency)
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
-
